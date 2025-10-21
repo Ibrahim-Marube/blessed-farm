@@ -1,0 +1,121 @@
+import sgMail from '@sendgrid/mail';
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
+
+export async function sendOrderConfirmationEmail(order: any) {
+  const itemsList = order.items
+    .map((item: any) => `${item.quantity}x ${item.name} - $${(item.price * item.quantity).toFixed(2)}`)
+    .join('\n');
+
+  // Email to customer
+  const customerEmail = {
+    to: order.customerEmail,
+    from: process.env.SENDGRID_FROM_EMAIL || 'noreply@blessedfarm.com',
+    subject: `Order Confirmation #${order.orderNumber} - Blessed Farm`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #16a34a; color: white; padding: 30px; text-align: center;">
+          <h1 style="margin: 0;">Order Confirmed!</h1>
+        </div>
+        
+        <div style="padding: 30px; background: #f9fafb;">
+          <p style="font-size: 16px;">Hi ${order.customerName},</p>
+          <p>Thank you for your order! We've received it and will process it shortly.</p>
+          
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h2 style="color: #16a34a; margin-top: 0;">Order #${order.orderNumber}</h2>
+            
+            <div style="margin: 20px 0;">
+              <h3 style="margin-bottom: 10px;">Order Details:</h3>
+              <pre style="background: #f3f4f6; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: Arial, sans-serif;">${itemsList}</pre>
+            </div>
+            
+            <div style="border-top: 2px solid #e5e7eb; padding-top: 15px; margin-top: 15px;">
+              <p style="font-size: 18px; font-weight: bold;">Total: $${order.total.toFixed(2)}</p>
+            </div>
+            
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+              <p><strong>Delivery Method:</strong> ${order.deliveryMethod === 'delivery' ? 'Home Delivery' : 'Farm Pickup'}</p>
+              ${order.deliveryAddress ? `<p><strong>Delivery Address:</strong><br>${order.deliveryAddress}</p>` : ''}
+              <p><strong>Phone:</strong> ${order.customerPhone}</p>
+              <p><strong>Payment:</strong> ${order.paymentMethod === 'cash' ? 'Cash on ' + (order.deliveryMethod === 'delivery' ? 'Delivery' : 'Pickup') : 'PayPal'}</p>
+            </div>
+          </div>
+          
+          <p>We'll contact you shortly to confirm delivery details.</p>
+          <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+            Best regards,<br>
+            <strong>Blessed Farm Team</strong>
+          </p>
+        </div>
+        
+        <div style="background: #1f2937; color: #9ca3af; padding: 20px; text-align: center; font-size: 12px;">
+          <p>© 2025 Blessed Farm. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  };
+
+  // Email to admin
+  const adminEmail = {
+    to: process.env.ADMIN_EMAIL || 'admin@blessedfarm.com',
+    from: process.env.SENDGRID_FROM_EMAIL || 'noreply@blessedfarm.com',
+    subject: `🔔 New Order #${order.orderNumber} - Blessed Farm`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #dc2626; color: white; padding: 30px; text-align: center;">
+          <h1 style="margin: 0;">🔔 New Order Received!</h1>
+        </div>
+        
+        <div style="padding: 30px; background: #f9fafb;">
+          <h2 style="color: #dc2626;">Order #${order.orderNumber}</h2>
+          
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3>Customer Information:</h3>
+            <p><strong>Name:</strong> ${order.customerName}</p>
+            <p><strong>Email:</strong> ${order.customerEmail}</p>
+            <p><strong>Phone:</strong> ${order.customerPhone}</p>
+            
+            <h3 style="margin-top: 20px;">Order Details:</h3>
+            <pre style="background: #f3f4f6; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: Arial, sans-serif;">${itemsList}</pre>
+            
+            <div style="border-top: 2px solid #e5e7eb; padding-top: 15px; margin-top: 15px;">
+              <p style="font-size: 18px; font-weight: bold;">Total: $${order.total.toFixed(2)}</p>
+            </div>
+            
+            <h3 style="margin-top: 20px;">Delivery Information:</h3>
+            <p><strong>Method:</strong> ${order.deliveryMethod === 'delivery' ? 'Home Delivery ($' + order.deliveryFee.toFixed(2) + ')' : 'Farm Pickup (Free)'}</p>
+            ${order.deliveryAddress ? `<p><strong>Address:</strong><br>${order.deliveryAddress}</p>` : '<p><em>Farm pickup - no delivery address</em></p>'}
+            
+            <h3 style="margin-top: 20px;">Payment:</h3>
+            <p><strong>Method:</strong> ${order.paymentMethod === 'cash' ? 'Cash on ' + (order.deliveryMethod === 'delivery' ? 'Delivery' : 'Pickup') : 'PayPal (Paid)'}</p>
+            ${order.paymentId !== 'pending' ? `<p><strong>Payment ID:</strong> ${order.paymentId}</p>` : ''}
+            
+            ${order.notes ? `<h3 style="margin-top: 20px;">Order Notes:</h3><p style="background: #fef3c7; padding: 10px; border-radius: 5px;">${order.notes}</p>` : ''}
+          </div>
+          
+          <p style="text-align: center; margin-top: 30px;">
+            <a href="${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/admin/orders" 
+               style="background: #dc2626; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
+              View in Admin Panel
+            </a>
+          </p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await sgMail.send(customerEmail);
+    console.log('Customer email sent successfully');
+  } catch (error) {
+    console.error('Failed to send customer email:', error);
+  }
+
+  try {
+    await sgMail.send(adminEmail);
+    console.log('Admin email sent successfully');
+  } catch (error) {
+    console.error('Failed to send admin email:', error);
+  }
+}
