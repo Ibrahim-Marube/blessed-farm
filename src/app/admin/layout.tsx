@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
-import { LayoutDashboard, Package, ShoppingCart, LogOut, Store, Leaf } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, LogOut, Store, Leaf, Mail, Image } from 'lucide-react';
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -40,6 +40,8 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/products', label: 'Products', icon: Package },
     { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+    { href: '/admin/contacts', label: 'Contacts', icon: Mail },
+    { href: '/admin/media', label: 'Media', icon: Image },
   ];
 
   return (

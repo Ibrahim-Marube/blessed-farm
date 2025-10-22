@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import ProductCard from '@/components/customer/product-card';
-import { Loader2, Leaf, Award, Truck, Phone, Mail, MapPin, Heart, Users, Sprout } from 'lucide-react';
+import { Loader2, Leaf, Award, Truck, Phone, Mail, MapPin, Heart, Users, Sprout, Send } from 'lucide-react';
 
 interface Product {
   _id: string;
@@ -18,6 +18,9 @@ export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
+  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const categories = [
     { id: 'all', name: 'All Products' },
@@ -47,6 +50,30 @@ export default function HomePage() {
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contactForm),
+      });
+
+      if (res.ok) {
+        setSubmitSuccess(true);
+        setContactForm({ name: '', email: '', message: '' });
+        setTimeout(() => setSubmitSuccess(false), 5000);
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      alert('Failed to send message. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -229,8 +256,8 @@ export default function HomePage() {
                   <Phone className="h-6 w-6" />
                 </div>
                 <h3 className="font-semibold text-neutral-900 mb-2">Phone</h3>
-                <a href="tel:+1234567890" className="text-primary-700 hover:text-primary-800 font-medium">
-                  (123) 456-7890
+                <a href="tel:+17208402474" className="text-primary-700 hover:text-primary-800 font-medium">
+                  (720) 840-2474
                 </a>
               </div>
 
@@ -239,8 +266,8 @@ export default function HomePage() {
                   <Mail className="h-6 w-6" />
                 </div>
                 <h3 className="font-semibold text-neutral-900 mb-2">Email</h3>
-                <a href="mailto:info@blessedfarm.com" className="text-primary-700 hover:text-primary-800 font-medium">
-                  info@blessedfarm.com
+                <a href="mailto:hyline1984@gmail.com" className="text-primary-700 hover:text-primary-800 font-medium">
+                  hyline1984@gmail.com
                 </a>
               </div>
 
@@ -248,47 +275,74 @@ export default function HomePage() {
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary-600 text-white mb-4">
                   <MapPin className="h-6 w-6" />
                 </div>
-                <h3 className="font-semibold text-neutral-900 mb-2">Location</h3>
+                <h3 className="font-semibold text-neutral-900 mb-2">Farm Address</h3>
                 <p className="text-primary-700 font-medium">
-                  Colorado, USA
+                  1234 Farm Road<br/>Boulder, CO 80301
                 </p>
               </div>
             </div>
 
             <div className="bg-neutral-50 rounded-2xl p-8">
               <h3 className="text-2xl font-semibold text-neutral-900 mb-6 text-center">Send Us a Message</h3>
-              <form className="space-y-6">
+              
+              {submitSuccess && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 text-center">
+                  ✓ Message sent successfully! We'll get back to you soon.
+                </div>
+              )}
+              
+              <form onSubmit={handleContactSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">Name</label>
                     <input
                       type="text"
+                      value={contactForm.name}
+                      onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
                       className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-600 focus:border-transparent outline-none"
                       placeholder="Your name"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">Email</label>
                     <input
                       type="email"
+                      value={contactForm.email}
+                      onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
                       className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-600 focus:border-transparent outline-none"
                       placeholder="your@email.com"
+                      required
                     />
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-2">Message</label>
                   <textarea
+                    value={contactForm.message}
+                    onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
                     rows={5}
                     className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-600 focus:border-transparent outline-none"
                     placeholder="Tell us how we can help..."
+                    required
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full px-8 py-4 bg-primary-600 text-white font-medium text-lg rounded-xl hover:bg-primary-700 transition-colors shadow-lg"
+                  disabled={submitting}
+                  className="w-full px-8 py-4 bg-primary-600 text-white font-medium text-lg rounded-xl hover:bg-primary-700 transition-colors shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  Send Message
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-5 w-5" />
+                      Send Message
+                    </>
+                  )}
                 </button>
               </form>
             </div>
@@ -299,10 +353,16 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="bg-neutral-900 text-white py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
+          <div className="text-center mb-8">
             <Leaf className="h-10 w-10 text-primary-400 mx-auto mb-4" />
             <h3 className="text-2xl font-semibold mb-2">Blessed Farm</h3>
-            <p className="text-neutral-400 font-light mb-8">Fresh from our farm to your table</p>
+            <p className="text-neutral-400 font-light mb-6">Fresh from our farm to your table</p>
+            
+            <div className="flex items-center justify-center gap-2 text-neutral-300 mb-4">
+              <MapPin className="h-5 w-5 text-primary-400" />
+              <p className="font-light">Pickup Address: 1234 Farm Road, Boulder, CO 80301</p>
+            </div>
+            
             <p className="text-neutral-500 text-sm">&copy; 2025 Blessed Farm. All rights reserved.</p>
           </div>
         </div>

@@ -10,7 +10,7 @@ export async function sendOrderConfirmationEmail(order: any) {
   // Email to customer
   const customerEmail = {
     to: order.customerEmail,
-    from: process.env.SENDGRID_FROM_EMAIL || 'noreply@blessedfarm.com',
+    from: process.env.SENDGRID_FROM_EMAIL || 'ibrahimnmarube@gmail.com',
     subject: `Order Confirmation #${order.orderNumber} - Blessed Farm`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -36,7 +36,7 @@ export async function sendOrderConfirmationEmail(order: any) {
             
             <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
               <p><strong>Delivery Method:</strong> ${order.deliveryMethod === 'delivery' ? 'Home Delivery' : 'Farm Pickup'}</p>
-              ${order.deliveryAddress ? `<p><strong>Delivery Address:</strong><br>${order.deliveryAddress}</p>` : ''}
+              ${order.deliveryAddress ? `<p><strong>Delivery Address:</strong><br>${order.deliveryAddress}</p>` : '<p><strong>Pickup Address:</strong><br>1234 Farm Road, Boulder, CO 80301</p>'}
               <p><strong>Phone:</strong> ${order.customerPhone}</p>
               <p><strong>Payment:</strong> ${order.paymentMethod === 'cash' ? 'Cash on ' + (order.deliveryMethod === 'delivery' ? 'Delivery' : 'Pickup') : 'PayPal'}</p>
             </div>
@@ -58,8 +58,8 @@ export async function sendOrderConfirmationEmail(order: any) {
 
   // Email to admin
   const adminEmail = {
-    to: process.env.ADMIN_EMAIL || 'admin@blessedfarm.com',
-    from: process.env.SENDGRID_FROM_EMAIL || 'noreply@blessedfarm.com',
+    to: process.env.ADMIN_EMAIL || 'ibrahimnmarube@gmail.com',
+    from: process.env.SENDGRID_FROM_EMAIL || 'ibrahimnmarube@gmail.com',
     subject: `🔔 New Order #${order.orderNumber} - Blessed Farm`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -117,5 +117,87 @@ export async function sendOrderConfirmationEmail(order: any) {
     console.log('Admin email sent successfully');
   } catch (error) {
     console.error('Failed to send admin email:', error);
+  }
+}
+
+export async function sendOrderStatusEmail(order: any) {
+  const itemsList = order.items
+    .map((item: any) => `${item.quantity}x ${item.name} - $${(item.price * item.quantity).toFixed(2)}`)
+    .join('\n');
+
+  let statusTitle = '';
+  let statusColor = '';
+  let statusMessage = '';
+
+  switch (order.status) {
+    case 'processing':
+      statusTitle = 'Order is Being Processed';
+      statusColor = '#3b82f6';
+      statusMessage = 'Good news! Your order is now being prepared. We\'ll notify you when it\'s ready for delivery/pickup.';
+      break;
+    case 'completed':
+      statusTitle = 'Order Completed';
+      statusColor = '#16a34a';
+      statusMessage = 'Your order has been completed! Thank you for choosing Blessed Farm.';
+      break;
+    case 'cancelled':
+      statusTitle = 'Order Cancelled';
+      statusColor = '#dc2626';
+      statusMessage = 'Your order has been cancelled. If you have any questions, please contact us.';
+      break;
+    default:
+      return;
+  }
+
+  const email = {
+    to: order.customerEmail,
+    from: process.env.SENDGRID_FROM_EMAIL || 'ibrahimnmarube@gmail.com',
+    subject: `${statusTitle} - Order #${order.orderNumber}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: ${statusColor}; color: white; padding: 30px; text-align: center;">
+          <h1 style="margin: 0;">${statusTitle}</h1>
+        </div>
+        
+        <div style="padding: 30px; background: #f9fafb;">
+          <p style="font-size: 16px;">Hi ${order.customerName},</p>
+          <p>${statusMessage}</p>
+          
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h2 style="color: ${statusColor}; margin-top: 0;">Order #${order.orderNumber}</h2>
+            
+            <div style="margin: 20px 0;">
+              <h3 style="margin-bottom: 10px;">Order Details:</h3>
+              <pre style="background: #f3f4f6; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: Arial, sans-serif;">${itemsList}</pre>
+            </div>
+            
+            <div style="border-top: 2px solid #e5e7eb; padding-top: 15px; margin-top: 15px;">
+              <p style="font-size: 18px; font-weight: bold;">Total: $${order.total.toFixed(2)}</p>
+            </div>
+            
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+              <p><strong>Delivery Method:</strong> ${order.deliveryMethod === 'delivery' ? 'Home Delivery' : 'Farm Pickup'}</p>
+              ${order.deliveryAddress ? `<p><strong>Delivery Address:</strong><br>${order.deliveryAddress}</p>` : '<p><strong>Pickup Address:</strong><br>1234 Farm Road, Boulder, CO 80301</p>'}
+            </div>
+          </div>
+          
+          <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+            Best regards,<br>
+            <strong>Blessed Farm Team</strong>
+          </p>
+        </div>
+        
+        <div style="background: #1f2937; color: #9ca3af; padding: 20px; text-align: center; font-size: 12px;">
+          <p>© 2025 Blessed Farm. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await sgMail.send(email);
+    console.log('Order status email sent successfully');
+  } catch (error) {
+    console.error('Failed to send order status email:', error);
   }
 }
