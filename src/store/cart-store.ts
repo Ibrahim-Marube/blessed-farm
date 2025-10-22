@@ -8,6 +8,9 @@ interface CartItem {
   quantity: number;
   imageUrl: string;
   stockQuantity: number;
+  category?: string;
+  slaughterService?: boolean;
+  slaughterFee?: number;
 }
 
 interface CartStore {
@@ -15,6 +18,7 @@ interface CartStore {
   addItem: (item: CartItem) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
+  updateSlaughterService: (id: string, slaughterService: boolean) => void;
   clearCart: () => void;
   getTotal: () => number;
 }
@@ -26,12 +30,12 @@ export const useCartStore = create<CartStore>()(
       
       addItem: (item) => {
         set((state) => {
-          const existingItem = state.items.find((i) => i.id === item.id);
+          const existingItem = state.items.find((i) => i.id === item.id && i.slaughterService === item.slaughterService);
           
           if (existingItem) {
             return {
               items: state.items.map((i) =>
-                i.id === item.id
+                i.id === item.id && i.slaughterService === item.slaughterService
                   ? { ...i, quantity: Math.min(i.quantity + item.quantity, i.stockQuantity) }
                   : i
               ),
@@ -55,6 +59,14 @@ export const useCartStore = create<CartStore>()(
           ),
         }));
       },
+
+      updateSlaughterService: (id, slaughterService) => {
+        set({
+          items: get().items.map((item) =>
+            item.id === id ? { ...item, slaughterService } : item
+          ),
+        });
+      },
       
       clearCart: () => {
         set({ items: [] });
@@ -62,7 +74,13 @@ export const useCartStore = create<CartStore>()(
       
       getTotal: () => {
         const state = get();
-        return state.items.reduce((total, item) => total + item.price * item.quantity, 0);
+        return state.items.reduce((total, item) => {
+          const itemTotal = item.price * item.quantity;
+          const slaughterTotal = item.slaughterService && item.slaughterFee 
+            ? item.slaughterFee * item.quantity 
+            : 0;
+          return total + itemTotal + slaughterTotal;
+        }, 0);
       },
     }),
     {

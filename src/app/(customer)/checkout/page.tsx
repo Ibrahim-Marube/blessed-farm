@@ -26,6 +26,11 @@ export default function CheckoutPage() {
   const deliveryFee = deliveryMethod === 'delivery' ? 10 : 0;
   const finalTotal = total + deliveryFee;
 
+  // Calculate slaughter fees separately for display
+  const slaughterTotal = items.reduce((sum, item) => {
+    return sum + (item.slaughterService && item.slaughterFee ? item.slaughterFee * item.quantity : 0);
+  }, 0);
+
   const createOrder = async (paymentId?: string) => {
     const orderData = {
       customerName: formData.customerName,
@@ -38,6 +43,8 @@ export default function CheckoutPage() {
         name: item.name,
         quantity: item.quantity,
         price: item.price,
+        slaughterService: item.slaughterService || false,
+        slaughterFee: item.slaughterFee || 0,
       })),
       total: finalTotal,
       deliveryMethod,
@@ -354,28 +361,40 @@ export default function CheckoutPage() {
                     
                     <div className="space-y-4 mb-6">
                       {items.map((item) => (
-                        <div key={item.id} className="flex gap-4">
-                          <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0">
-                            <Image
-                              src={item.imageUrl}
-                              alt={item.name}
-                              fill
-                              className="object-cover"
-                            />
+                        <div key={item.id} className="space-y-2">
+                          <div className="flex gap-4">
+                            <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0">
+                              <Image
+                                src={item.imageUrl}
+                                alt={item.name}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-sm font-medium text-neutral-900 truncate">
+                                {item.name}
+                              </h3>
+                              <p className="text-sm text-neutral-600">
+                                Qty: {item.quantity}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-semibold text-neutral-900">
+                                ${(item.price * item.quantity).toFixed(2)}
+                              </p>
+                            </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-sm font-medium text-neutral-900 truncate">
-                              {item.name}
-                            </h3>
-                            <p className="text-sm text-neutral-600">
-                              Qty: {item.quantity}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm font-semibold text-neutral-900">
-                              ${(item.price * item.quantity).toFixed(2)}
-                            </p>
-                          </div>
+                          {item.slaughterService && item.slaughterFee && (
+                            <div className="ml-20 flex justify-between text-xs">
+                              <span className="text-green-700 font-medium">
+                                + Slaughter Service
+                              </span>
+                              <span className="text-green-700 font-semibold">
+                                +${(item.slaughterFee * item.quantity).toFixed(2)}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -383,8 +402,14 @@ export default function CheckoutPage() {
                     <div className="border-t border-neutral-200 pt-4 space-y-3">
                       <div className="flex justify-between text-sm">
                         <span className="text-neutral-600">Subtotal</span>
-                        <span className="text-neutral-900 font-medium">${total.toFixed(2)}</span>
+                        <span className="text-neutral-900 font-medium">${(total - slaughterTotal).toFixed(2)}</span>
                       </div>
+                      {slaughterTotal > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-neutral-600">Slaughter Services</span>
+                          <span className="text-green-700 font-medium">+${slaughterTotal.toFixed(2)}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between text-sm">
                         <span className="text-neutral-600">
                           {deliveryMethod === 'delivery' ? 'Delivery' : 'Pickup'}
