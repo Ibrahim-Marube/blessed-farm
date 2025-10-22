@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import ProductCard from '@/components/customer/product-card';
 import { Loader2, Leaf, Award, Truck, Phone, Mail, MapPin, Heart, Users, Sprout, Send } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface Product {
   _id: string;
@@ -13,6 +14,20 @@ interface Product {
   stockQuantity: number;
   description: string;
 }
+
+const fadeInUp = {
+  initial: { opacity: 0, y: 60 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: "easeOut" }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -83,19 +98,44 @@ export default function HomePage() {
       <section className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20"></div>
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-28 md:pt-28 md:pb-40">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center justify-center mb-6">
+          <motion.div 
+            className="max-w-4xl mx-auto text-center"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <motion.div 
+              className="inline-flex items-center justify-center mb-6"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            >
               <Leaf className="h-12 w-12 text-primary-200" />
-            </div>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-light tracking-tight mb-6">
+            </motion.div>
+            <motion.h1 
+              className="text-5xl md:text-6xl lg:text-7xl font-light tracking-tight mb-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+            >
               Farm Fresh.
               <br />
               <span className="font-semibold">Naturally Good.</span>
-            </h1>
-            <p className="text-xl md:text-2xl font-light text-primary-100 mb-10 max-w-2xl mx-auto">
+            </motion.h1>
+            <motion.p 
+              className="text-xl md:text-2xl font-light text-primary-100 mb-10 max-w-2xl mx-auto"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+            >
               Premium quality eggs, poultry, and livestock from our Colorado farm to your table.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            </motion.p>
+            <motion.div 
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7, duration: 0.8 }}
+            >
               <button
                 onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}
                 className="inline-flex items-center justify-center px-8 py-4 bg-white text-primary-700 font-medium text-lg rounded-full hover:bg-primary-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105"
@@ -108,46 +148,48 @@ export default function HomePage() {
               >
                 Contact Us
               </button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* Features */}
       <section className="py-12 bg-white border-b border-neutral-200">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary-100 text-primary-700 mb-4">
-                <Leaf className="h-7 w-7" />
-              </div>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-2">100% Organic</h3>
-              <p className="text-neutral-600 font-light">Raised naturally without chemicals</p>
-            </div>
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary-100 text-primary-700 mb-4">
-                <Award className="h-7 w-7" />
-              </div>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-2">Premium Quality</h3>
-              <p className="text-neutral-600 font-light">Carefully selected, farm-fresh products</p>
-            </div>
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary-100 text-primary-700 mb-4">
-                <Truck className="h-7 w-7" />
-              </div>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-2">Local Delivery</h3>
-              <p className="text-neutral-600 font-light">Fast delivery across Colorado</p>
-            </div>
-          </div>
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+          >
+            {[
+              { icon: Leaf, title: "100% Organic", desc: "Raised naturally without chemicals" },
+              { icon: Award, title: "Premium Quality", desc: "Carefully selected, farm-fresh products" },
+              { icon: Truck, title: "Local Delivery", desc: "Fast delivery across Colorado" }
+            ].map((feature, i) => (
+              <motion.div 
+                key={i}
+                className="text-center"
+                variants={fadeInUp}
+              >
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary-100 text-primary-700 mb-4">
+                  <feature.icon className="h-7 w-7" />
+                </div>
+                <h3 className="text-lg font-semibold text-neutral-900 mb-2">{feature.title}</h3>
+                <p className="text-neutral-600 font-light">{feature.desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
       {/* Category Filter */}
       <section id="products" className="bg-white border-b border-neutral-200 sticky top-16 z-40 backdrop-blur-xl bg-white/95">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center gap-2 overflow-x-auto py-5 scrollbar-hide">
+          <div className="flex items-center justify-start md:justify-center gap-2 overflow-x-auto py-5 scrollbar-hide">
             {categories.map((cat) => (
-              <button
+              <motion.button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
                 className={`px-6 py-2.5 rounded-full font-medium text-sm whitespace-nowrap transition-all ${
@@ -155,9 +197,11 @@ export default function HomePage() {
                     ? 'bg-primary-600 text-white shadow-lg'
                     : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
                 }`}
+                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.05 }}
               >
                 {cat.name}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
@@ -172,23 +216,44 @@ export default function HomePage() {
               <p className="text-neutral-500 font-light">Loading products...</p>
             </div>
           ) : products.length === 0 ? (
-            <div className="text-center py-32">
-              <p className="text-neutral-500 text-xl font-light">No products available</p>
-            </div>
+            <motion.div 
+              className="text-center py-32"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <p className="text-neutral-500 text-xl font-light">No products available in this category</p>
+            </motion.div>
           ) : (
             <>
-              <div className="mb-10 text-center">
+              <motion.div 
+                className="mb-10 text-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
                 <h2 className="text-4xl md:text-5xl font-light text-neutral-900 mb-3">
                   {activeCategory === 'all' ? 'All Products' : categories.find(c => c.id === activeCategory)?.name}
                 </h2>
                 <p className="text-neutral-600 font-light">{products.length} products available</p>
-              </div>
+              </motion.div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {products.map((product) => (
-                  <ProductCard key={product._id} product={product} />
+              <motion.div 
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+                key={activeCategory}
+              >
+                {products.map((product, i) => (
+                  <motion.div
+                    key={product._id}
+                    variants={fadeInUp}
+                    whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                  >
+                    <ProductCard product={product} />
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </>
           )}
         </div>
@@ -198,45 +263,57 @@ export default function HomePage() {
       <section id="about" className="py-20 bg-neutral-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
+            <motion.div 
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
               <h2 className="text-4xl md:text-5xl font-light text-neutral-900 mb-4">About Us</h2>
               <p className="text-neutral-600 font-light text-lg">Your trusted source for farm-fresh products in Colorado</p>
-            </div>
+            </motion.div>
 
-            <div className="bg-white rounded-3xl shadow-lg p-8 md:p-12 mb-10">
+            <motion.div 
+              className="bg-white rounded-3xl shadow-lg p-8 md:p-12 mb-10"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
               <p className="text-lg text-neutral-700 leading-relaxed mb-6">
                 Welcome to <span className="font-semibold text-primary-700">Blessed Farm</span>, where we've been raising healthy, happy animals and producing premium farm-fresh products for families across Colorado. Our commitment to organic, sustainable farming practices ensures that every product leaving our farm meets the highest standards of quality and care.
               </p>
               <p className="text-lg text-neutral-700 leading-relaxed">
                 From our free-range chickens laying the freshest eggs to our carefully raised goats and poultry, we take pride in providing you with products that are not only delicious but also ethically and sustainably produced. When you choose Blessed Farm, you're choosing quality, integrity, and a connection to where your food comes from.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center p-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary-700 mb-4">
-                  <Heart className="h-8 w-8" />
-                </div>
-                <h3 className="text-xl font-semibold text-neutral-900 mb-2">Family Owned</h3>
-                <p className="text-neutral-600 font-light">Operated with love and care for generations</p>
-              </div>
-
-              <div className="text-center p-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary-700 mb-4">
-                  <Sprout className="h-8 w-8" />
-                </div>
-                <h3 className="text-xl font-semibold text-neutral-900 mb-2">Sustainable</h3>
-                <p className="text-neutral-600 font-light">Eco-friendly practices for a healthier planet</p>
-              </div>
-
-              <div className="text-center p-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary-700 mb-4">
-                  <Users className="h-8 w-8" />
-                </div>
-                <h3 className="text-xl font-semibold text-neutral-900 mb-2">Community First</h3>
-                <p className="text-neutral-600 font-light">Supporting local families with quality products</p>
-              </div>
-            </div>
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-3 gap-8"
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true }}
+            >
+              {[
+                { icon: Heart, title: "Family Owned", desc: "Operated with love and care for generations" },
+                { icon: Sprout, title: "Sustainable", desc: "Eco-friendly practices for a healthier planet" },
+                { icon: Users, title: "Community First", desc: "Supporting local families with quality products" }
+              ].map((value, i) => (
+                <motion.div 
+                  key={i}
+                  className="text-center p-6"
+                  variants={fadeInUp}
+                >
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary-700 mb-4">
+                    <value.icon className="h-8 w-8" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-neutral-900 mb-2">{value.title}</h3>
+                  <p className="text-neutral-600 font-light">{value.desc}</p>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </div>
       </section>
@@ -245,50 +322,69 @@ export default function HomePage() {
       <section id="contact" className="py-20 bg-white border-t border-neutral-200">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
+            <motion.div 
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
               <h2 className="text-4xl md:text-5xl font-light text-neutral-900 mb-4">Get In Touch</h2>
               <p className="text-neutral-600 font-light text-lg">Have questions? We'd love to hear from you.</p>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-              <div className="text-center p-6 bg-primary-50 rounded-2xl">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary-600 text-white mb-4">
-                  <Phone className="h-6 w-6" />
-                </div>
-                <h3 className="font-semibold text-neutral-900 mb-2">Phone</h3>
-                <a href="tel:+17208402474" className="text-primary-700 hover:text-primary-800 font-medium">
-                  (720) 840-2474
-                </a>
-              </div>
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12"
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true }}
+            >
+              {[
+                { icon: Phone, title: "Phone", content: "(720) 840-2474", href: "tel:+17208402474" },
+                { icon: Mail, title: "Email", content: "hyline1984@gmail.com", href: "mailto:hyline1984@gmail.com" },
+                { icon: MapPin, title: "Farm Address", content: "1234 Farm Road\nBoulder, CO 80301", href: null }
+              ].map((contact, i) => (
+                <motion.div 
+                  key={i}
+                  className="text-center p-6 bg-primary-50 rounded-2xl"
+                  variants={fadeInUp}
+                  whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                >
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary-600 text-white mb-4">
+                    <contact.icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="font-semibold text-neutral-900 mb-2">{contact.title}</h3>
+                  {contact.href ? (
+                    <a href={contact.href} className="text-primary-700 hover:text-primary-800 font-medium">
+                      {contact.content}
+                    </a>
+                  ) : (
+                    <p className="text-primary-700 font-medium whitespace-pre-line">
+                      {contact.content}
+                    </p>
+                  )}
+                </motion.div>
+              ))}
+            </motion.div>
 
-              <div className="text-center p-6 bg-primary-50 rounded-2xl">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary-600 text-white mb-4">
-                  <Mail className="h-6 w-6" />
-                </div>
-                <h3 className="font-semibold text-neutral-900 mb-2">Email</h3>
-                <a href="mailto:hyline1984@gmail.com" className="text-primary-700 hover:text-primary-800 font-medium">
-                  hyline1984@gmail.com
-                </a>
-              </div>
-
-              <div className="text-center p-6 bg-primary-50 rounded-2xl">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary-600 text-white mb-4">
-                  <MapPin className="h-6 w-6" />
-                </div>
-                <h3 className="font-semibold text-neutral-900 mb-2">Farm Address</h3>
-                <p className="text-primary-700 font-medium">
-                  1234 Farm Road<br/>Boulder, CO 80301
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-neutral-50 rounded-2xl p-8">
+            <motion.div 
+              className="bg-neutral-50 rounded-2xl p-8"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
               <h3 className="text-2xl font-semibold text-neutral-900 mb-6 text-center">Send Us a Message</h3>
               
               {submitSuccess && (
-                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 text-center">
+                <motion.div 
+                  className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 text-center"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                >
                   ✓ Message sent successfully! We'll get back to you soon.
-                </div>
+                </motion.div>
               )}
               
               <form onSubmit={handleContactSubmit} className="space-y-6">
@@ -345,7 +441,7 @@ export default function HomePage() {
                   )}
                 </button>
               </form>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -353,7 +449,13 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="bg-neutral-900 text-white py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
+          <motion.div 
+            className="text-center mb-8"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
             <Leaf className="h-10 w-10 text-primary-400 mx-auto mb-4" />
             <h3 className="text-2xl font-semibold mb-2">Blessed Farm</h3>
             <p className="text-neutral-400 font-light mb-6">Fresh from our farm to your table</p>
@@ -364,7 +466,7 @@ export default function HomePage() {
             </div>
             
             <p className="text-neutral-500 text-sm">&copy; 2025 Blessed Farm. All rights reserved.</p>
-          </div>
+          </motion.div>
         </div>
       </footer>
     </div>

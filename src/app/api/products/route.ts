@@ -2,10 +2,20 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Product from '@/lib/models/Product';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     await dbConnect();
-    const products = await Product.find({ isActive: true }).sort({ createdAt: -1 });
+    
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category');
+    
+    const filter: any = { isActive: true };
+    
+    if (category && category !== 'all') {
+      filter.category = category;
+    }
+    
+    const products = await Product.find(filter).sort({ createdAt: -1 });
     return NextResponse.json({ success: true, data: products });
   } catch (error) {
     console.error('Failed to fetch products:', error);
