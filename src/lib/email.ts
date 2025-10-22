@@ -3,6 +3,10 @@ import sgMail from '@sendgrid/mail';
 sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
 
 export async function sendOrderConfirmationEmail(order: any) {
+  console.log('📧 Starting email send for order:', order.orderNumber);
+  console.log('Customer email:', order.customerEmail);
+  console.log('Admin email:', process.env.ADMIN_EMAIL || 'ibrahimnmarube@gmail.com');
+  
   const itemsList = order.items
     .map((item: any) => `${item.quantity}x ${item.name} - $${(item.price * item.quantity).toFixed(2)}`)
     .join('\n');
@@ -108,17 +112,19 @@ export async function sendOrderConfirmationEmail(order: any) {
   };
 
   try {
+    console.log('📤 Sending customer email...');
     await sgMail.send(customerEmail);
-    console.log('Customer email sent successfully');
-  } catch (error) {
-    console.error('Failed to send customer email:', error);
+    console.log('✅ Customer email sent successfully');
+  } catch (error: any) {
+    console.error('❌ Failed to send customer email:', error.response?.body || error.message);
   }
 
   try {
+    console.log('📤 Sending admin email...');
     await sgMail.send(adminEmail);
-    console.log('Admin email sent successfully');
-  } catch (error) {
-    console.error('Failed to send admin email:', error);
+    console.log('✅ Admin email sent successfully');
+  } catch (error: any) {
+    console.error('❌ Failed to send admin email:', error.response?.body || error.message);
   }
 }
 
