@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/lib/models/Order';
+import { sendOrderStatusEmail } from '@/lib/email';
 
 export async function PATCH(
   request: Request,
@@ -21,6 +22,17 @@ export async function PATCH(
         { success: false, error: 'Order not found' },
         { status: 404 }
       );
+    }
+
+    // Send email if status was updated (not archived)
+    if (body.status && !body.archived) {
+      try {
+        await sendOrderStatusEmail(order);
+        console.log('✅ Status update email sent for order:', order.orderNumber);
+      } catch (emailError) {
+        console.error('❌ Failed to send status email:', emailError);
+        // Don't fail the request if email fails
+      }
     }
 
     return NextResponse.json({ success: true, data: order });
