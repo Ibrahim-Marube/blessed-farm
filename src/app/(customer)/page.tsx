@@ -25,7 +25,7 @@ export default function HomePage() {
   const categories = [
     { id: 'all', name: 'All Products' },
     { id: 'Fresh Eggs', name: 'Fresh Eggs' },
-    { id: 'Live Poultry', name: 'Poultry' },
+    { id: 'Live Poultry', name: 'Live Poultry' },
     { id: 'Goats', name: 'Goats' },
   ];
 
