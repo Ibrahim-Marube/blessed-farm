@@ -88,8 +88,10 @@ export async function sendOrderConfirmationEmail(order: any) {
             ${order.deliveryAddress ? `<p><strong>Address:</strong><br>${order.deliveryAddress}</p>` : '<p><em>Farm pickup - no delivery address</em></p>'}
             
             <h3 style="margin-top: 20px;">Payment:</h3>
-            <p><strong>Method:</strong> ${order.paymentMethod === 'cash' ? 'Cash on ' + (order.deliveryMethod === 'delivery' ? 'Delivery' : 'Pickup') : 'PayPal (Paid)'}</p>
-            ${order.paymentId !== 'pending' ? `<p><strong>Payment ID:</strong> ${order.paymentId}</p>` : ''}
+            <p><strong>Method:</strong> ${order.paymentMethod === 'cash' ? 'Cash on ' + (order.deliveryMethod === 'delivery' ? 'Delivery' : 'Pickup') : 'PayPal'}</p>
+            ${order.paymentMethod === 'paypal' && order.paymentId && order.paymentId !== 'pending' ? `<p><strong>Payment ID:</strong> ${order.paymentId}</p>` : ''}
+            ${order.paymentMethod === 'paypal' && order.paymentId && order.paymentId !== 'pending' ? '<p style="color: #16a34a; font-weight: bold;">Payment Received via PayPal</p>' : ''}
+            ${order.paymentMethod === 'cash' ? '<p style="color: #f59e0b; font-weight: bold;">Payment will be collected on ' + (order.deliveryMethod === 'delivery' ? 'delivery' : 'pickup') + '</p>' : ''}
             
             ${order.notes ? `<h3 style="margin-top: 20px;">Order Notes:</h3><p style="background: #fef3c7; padding: 10px; border-radius: 5px;">${order.notes}</p>` : ''}
           </div>
@@ -178,6 +180,8 @@ export async function sendOrderStatusEmail(order: any) {
             <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
               <p><strong>Delivery Method:</strong> ${order.deliveryMethod === 'delivery' ? 'Home Delivery' : 'Farm Pickup'}</p>
               ${order.deliveryAddress ? `<p><strong>Delivery Address:</strong><br>${order.deliveryAddress}</p>` : '<p><strong>Pickup Address:</strong><br>1234 Farm Road, Boulder, CO 80301</p>'}
+              <p><strong>Phone:</strong> ${order.customerPhone}</p>
+              <p><strong>Payment:</strong> ${order.paymentMethod === 'cash' ? 'Cash on ' + (order.deliveryMethod === 'delivery' ? 'Delivery' : 'Pickup') : 'PayPal'}</p>
             </div>
           </div>
           
