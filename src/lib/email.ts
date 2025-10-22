@@ -11,11 +11,11 @@ export async function sendOrderConfirmationEmail(order: any) {
   const customerEmail = {
     to: order.customerEmail,
     from: process.env.SENDGRID_FROM_EMAIL || 'ibrahimnmarube@gmail.com',
-    subject: `Order Confirmation #${order.orderNumber} - Blessed Farm`,
+    subject: `Order has been placed #${order.orderNumber} - Blessed Farm`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #16a34a; color: white; padding: 30px; text-align: center;">
-          <h1 style="margin: 0;">Order Confirmed!</h1>
+          <h1 style="margin: 0;">Order has been placed! 🎉</h1>
         </div>
         
         <div style="padding: 30px; background: #f9fafb;">
