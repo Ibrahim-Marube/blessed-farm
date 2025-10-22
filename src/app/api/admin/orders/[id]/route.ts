@@ -5,14 +5,15 @@ import { sendOrderStatusEmail } from '@/lib/email';
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await dbConnect();
     const body = await request.json();
     
     const order = await Order.findByIdAndUpdate(
-      params.id,
+      id,
       { $set: body },
       { new: true }
     );
@@ -31,7 +32,6 @@ export async function PATCH(
         console.log('✅ Status update email sent for order:', order.orderNumber);
       } catch (emailError) {
         console.error('❌ Failed to send status email:', emailError);
-        // Don't fail the request if email fails
       }
     }
 
@@ -47,12 +47,13 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await dbConnect();
     
-    const order = await Order.findByIdAndDelete(params.id);
+    const order = await Order.findByIdAndDelete(id);
 
     if (!order) {
       return NextResponse.json(
