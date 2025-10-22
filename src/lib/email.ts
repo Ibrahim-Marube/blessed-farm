@@ -15,7 +15,7 @@ export async function sendOrderConfirmationEmail(order: any) {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #16a34a; color: white; padding: 30px; text-align: center;">
-          <h1 style="margin: 0;">Order has been placed! 🎉</h1>
+          <h1 style="margin: 0;">Order has been placed</h1>
         </div>
         
         <div style="padding: 30px; background: #f9fafb;">
@@ -60,11 +60,11 @@ export async function sendOrderConfirmationEmail(order: any) {
   const adminEmail = {
     to: process.env.ADMIN_EMAIL || 'ibrahimnmarube@gmail.com',
     from: process.env.SENDGRID_FROM_EMAIL || 'ibrahimnmarube@gmail.com',
-    subject: `🔔 New Order #${order.orderNumber} - Blessed Farm`,
+    subject: `New Order #${order.orderNumber} - Blessed Farm`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #dc2626; color: white; padding: 30px; text-align: center;">
-          <h1 style="margin: 0;">🔔 New Order Received!</h1>
+          <h1 style="margin: 0;">New Order Received</h1>
         </div>
         
         <div style="padding: 30px; background: #f9fafb;">
