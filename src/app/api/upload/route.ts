@@ -19,6 +19,8 @@ export async function POST(request: Request) {
       );
     }
 
+    console.log('Uploading file:', file.name, file.type, file.size);
+
     // Convert file to base64
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
@@ -31,14 +33,16 @@ export async function POST(request: Request) {
       resource_type: 'auto',
     });
 
+    console.log('Upload successful:', result.secure_url);
+
     return NextResponse.json({
       success: true,
       url: result.secure_url,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to upload image' },
+      { success: false, error: error.message || 'Failed to upload image' },
       { status: 500 }
     );
   }
