@@ -1,31 +1,26 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function GET() {
   try {
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    
-    if (!fs.existsSync(uploadsDir)) {
-      return NextResponse.json({ success: true, data: [] });
-    }
-
-    const files = fs.readdirSync(uploadsDir);
-    const imageFiles = files.filter(file => 
-      /\.(jpg|jpeg|png|gif|webp)$/i.test(file)
-    );
-
-    const images = imageFiles.map(file => {
-      const filePath = path.join(uploadsDir, file);
-      const stats = fs.statSync(filePath);
-      
-      return {
-        name: file,
-        url: `/uploads/${file}`,
-        size: stats.size,
-        createdAt: stats.birthtime,
-      };
+    const result = await cloudinary.api.resources({
+      type: 'upload',
+      prefix: 'blessed-farm',
+      max_results: 500,
     });
+
+    const images = result.resources.map((resource: any) => ({
+      name: resource.public_id.split('/').pop(),
+      url: resource.secure_url,
+      size: resource.bytes,
+      createdAt: resource.created_at,
+    }));
 
     return NextResponse.json({ success: true, data: images });
   } catch (error) {
@@ -39,17 +34,9 @@ export async function GET() {
 
 export async function DELETE(request: Request) {
   try {
-    const { filename } = await request.json();
-    const filePath = path.join(process.cwd(), 'public', 'uploads', filename);
+    const { publicId } = await request.json();
 
-    if (!fs.existsSync(filePath)) {
-      return NextResponse.json(
-        { success: false, error: 'File not found' },
-        { status: 404 }
-      );
-    }
-
-    fs.unlinkSync(filePath);
+    await cloudinary.uploader.destroy(publicId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Failed to delete image:', error);

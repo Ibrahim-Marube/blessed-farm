@@ -35,15 +35,21 @@ export default function AdminMediaPage() {
     }
   };
 
-  const deleteImage = async (filename: string) => {
+  const deleteImage = async (url: string) => {
+    const filename = url.split('/').pop()?.split('?')[0] || '';
     if (!confirm(`Are you sure you want to delete ${filename}?`)) return;
 
-    setDeleting(filename);
+    setDeleting(url);
     try {
+      // Extract public_id from Cloudinary URL
+      const urlParts = url.split('/');
+      const fileWithExt = urlParts[urlParts.length - 1].split('?')[0];
+      const publicId = `blessed-farm/${fileWithExt.split('.')[0]}`;
+
       const res = await fetch('/api/admin/media', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename }),
+        body: JSON.stringify({ publicId }),
       });
 
       if (res.ok) {
@@ -77,7 +83,7 @@ export default function AdminMediaPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-4xl font-semibold text-neutral-900">Media Library</h1>
-        <p className="text-neutral-600 mt-2 font-light">Manage uploaded images</p>
+        <p className="text-neutral-600 mt-2 font-light">Manage uploaded images (Cloudinary)</p>
       </div>
 
       {images.length === 0 ? (
@@ -91,8 +97,7 @@ export default function AdminMediaPage() {
             <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm text-blue-900">
-                <strong>Warning:</strong> Deleting an image that's being used by a product will break the product display. 
-                Make sure no products are using an image before deleting it.
+                <strong>Note:</strong> Images are stored on Cloudinary. Deleting an image that is being used by a product will break the product display.
               </p>
             </div>
           </div>
@@ -106,7 +111,7 @@ export default function AdminMediaPage() {
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {images.map((image) => (
-                <div key={image.name} className="relative group">
+                <div key={image.url} className="relative group">
                   <div className="relative aspect-square rounded-xl overflow-hidden bg-neutral-100 border-2 border-neutral-200">
                     <Image
                       src={image.url}
@@ -131,11 +136,11 @@ export default function AdminMediaPage() {
                   </div>
 
                   <button
-                    onClick={() => deleteImage(image.name)}
-                    disabled={deleting === image.name}
+                    onClick={() => deleteImage(image.url)}
+                    disabled={deleting === image.url}
                     className="absolute top-2 right-2 p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50 shadow-lg"
                   >
-                    {deleting === image.name ? (
+                    {deleting === image.url ? (
                       <Loader2 className="h-5 w-5 animate-spin" />
                     ) : (
                       <Trash2 className="h-5 w-5" />

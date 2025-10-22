@@ -1,56 +1,39 @@
 import { NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
-import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    
+
     if (!file) {
       return NextResponse.json(
-        { success: false, error: 'No file uploaded' },
+        { success: false, error: 'No file provided' },
         { status: 400 }
       );
     }
 
-    // Validate file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid file type. Only JPEG, PNG, and WebP are allowed.' },
-        { status: 400 }
-      );
-    }
-
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      return NextResponse.json(
-        { success: false, error: 'File too large. Maximum size is 5MB.' },
-        { status: 400 }
-      );
-    }
-
+    // Convert file to base64
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    const base64 = buffer.toString('base64');
+    const dataUrl = `data:${file.type};base64,${base64}`;
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(7);
-    const ext = path.extname(file.name);
-    const filename = `${timestamp}-${randomString}${ext}`;
-    
-    // Save to public/uploads
-    const filepath = path.join(process.cwd(), 'public/uploads', filename);
-    await writeFile(filepath, buffer);
-
-    // Return URL
-    const imageUrl = `/uploads/${filename}`;
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(dataUrl, {
+      folder: 'blessed-farm',
+      resource_type: 'auto',
+    });
 
     return NextResponse.json({
       success: true,
-      imageUrl,
+      url: result.secure_url,
     });
   } catch (error) {
     console.error('Upload error:', error);
