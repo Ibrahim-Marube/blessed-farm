@@ -11,7 +11,6 @@ export async function sendOrderConfirmationEmail(order: any) {
     .map((item: any) => `${item.quantity}x ${item.name} - $${(item.price * item.quantity).toFixed(2)}`)
     .join('\n');
 
-  // Email to customer
   const customerEmail = {
     to: order.customerEmail,
     from: process.env.SENDGRID_FROM_EMAIL || 'ibrahimnmarube@gmail.com',
@@ -60,7 +59,8 @@ export async function sendOrderConfirmationEmail(order: any) {
     `,
   };
 
-  // Email to admin
+  const deliveryFee = order.deliveryFee || 0;
+  
   const adminEmail = {
     to: process.env.ADMIN_EMAIL || 'ibrahimnmarube@gmail.com',
     from: process.env.SENDGRID_FROM_EMAIL || 'ibrahimnmarube@gmail.com',
@@ -88,7 +88,7 @@ export async function sendOrderConfirmationEmail(order: any) {
             </div>
             
             <h3 style="margin-top: 20px;">Delivery Information:</h3>
-            <p><strong>Method:</strong> ${order.deliveryMethod === 'delivery' ? 'Home Delivery ($' + order.deliveryFee.toFixed(2) + ')' : 'Farm Pickup (Free)'}</p>
+            <p><strong>Method:</strong> ${order.deliveryMethod === 'delivery' ? `Home Delivery ($${deliveryFee.toFixed(2)})` : 'Farm Pickup (Free)'}</p>
             ${order.deliveryAddress ? `<p><strong>Address:</strong><br>${order.deliveryAddress}</p>` : '<p><em>Farm pickup - no delivery address</em></p>'}
             
             <h3 style="margin-top: 20px;">Payment:</h3>
@@ -112,7 +112,7 @@ export async function sendOrderConfirmationEmail(order: any) {
   };
 
   try {
-    console.log('📤 Sending customer email...');
+    console.log('�� Sending customer email...');
     await sgMail.send(customerEmail);
     console.log('✅ Customer email sent successfully');
   } catch (error: any) {
